@@ -1,0 +1,346 @@
+Text pattern matching with regular expressions 
+achar texto pressionando ctrl-F 
+-> Regular expressions 
+permite eu especificar um padrão de texto que estou procurando 
+padrões de texto 
+numeros de telefone, emails, CPF, URL etc... 
+
+huge time-savers 
+para software users e programadores 
+
+pode ser a diferença entre resolver um problema em 3 passos ou em 3000 passos 
+
+começar fazendo um programa para achar padrões de texto sem regex, depois com regex, sentir a diferença 
+basic matching with regex
+powerful features -> string substitution and creating your own character classes 
+Humre module? 
+
+sem regex é mais trabalhoso, requer mais codigo e tem mais potencial de ser mais demorando em relação a execução do programa 
+
+- find text patterns with regular expressions
+rgular expressions -> regexes 
+\d stanst for a decimal numeral between 0 and 9 -> mini language 
+r'\d\d\d-\d\d\d-\d\d\d\d' in regex 
+adicionar um ({3}) por exemplo, diz para achar o padrão 3 vezes seguidas
+entao: r'\d{3}-\d{3}-\d{4} tambem da match com o padrão 
+
+write regex strings as raw strings, with the r prefix 
+sem usar o prefixo r, teria q fazer ''\\d'
+->->->-> prefixo r? era o que mesmo? 
+
+o processo geral de usar regex em python envolve 4 passos: 
+1-> importar o modulo 're' 
+2-> passar a string do regex para o re.compile() para conseguir um objeto de padrão
+3-> passar a string de texto para o pattern object's search() method para conseguir um objeto que der match 
+4-> chamar o match object's group() method para conseguir a string do matched text 
+todas as funções regex em python estao no modulo re 
+passar a regex string para re.compile() retorna um pattern object 
+eu só preciso compilar o pattern object 1 vez 
+depois disso, posso usar ele no search quantas vezes quiser 
+se o search nao achar nada, retorna None 
+se o padrão é achado -> retorna um Match object 
+esse match object vai ter nele um group method que vai retornar a string do matched text 
+
+----------- the syntax of regular expressions 
+
+--- groupin with parentheses 
+se eu quiser separar uma parte menor do texto que deu match - uso parentesis, como o codigo de area de um numero de telefone, para fazer alguma operação nele por exemplo 
+adicionar parentesis cria grupos na regex string:
+r'(\d\d\d)-(\d\d\d-\d\d\d\d)'
+dai eu posso usar o group() para pegar a info de 1 grupo da regex string 
+1 par de parentesis vai ser o grupo 1, e por assim em diante 
+group(1) -> retorna o grupo 1 e por assim em diante 
+group(0) -> retorna a string inteira 
+mo.group(1) -> grupo 1
+
+se eu quiser retornar todos os grupos (separados por virgula) eu uso o plural da palavra group()
+-> groups()
+-> ('111','222-2222') 
+se eu quiser separar em variaveis diferentes:
+area_code, main_number = mo.groups() 
+print(area_code) -> 441
+print(main_number) -> 2131
+
+groups() retorna uma tupla de valores 
+
+----- using escape characters 
+e se eu quiser achar um numero entre parentesis? 
+eu uso \(and\) 
+(\(\d\d\d\)) (\d\d...)
+isso separa os parentesis reais e dos da syntax 
+
+special characters 
+$ () * + - . ? [\] ^ {|} 
+para achar eles no regex, só colocar uma barra na frente 
+\$ \(\) \[\\ \] \^ \{\| \} 
+
+
+------- matching characters from alternate groups 
+| -> pipe 
+é utilizado como um alternation operator in regex 
+posso usar onde eu quiser qunado quiser dar match com uma de multiplas expressoes 
+por exemplo:
+r'cat|dog' vai dar match com cat e dog 
+
+se eu tiver uma lista de palavras, todas começarem com o mesmo suffix, posso facilitar meu trabalho com pipe:
+
+re.compile(r'Cat(erpillar|astrophe|ch|egory)')
+
+------- returning all matches 
+alem do search() method, pattern objects tambem tem o metodo findall()
+enquanto o search() vai retornar um match object do primeiro matched text na string searched, o findall() vai retornar a string de todos os matchs na searched string 
+findall() retorna uma lista de strings quando nao tem grupos na string 
+se tiver grupos na string, retorna uma lista de tuplas 
+
+se a string for 1234 e eu quiser um match com {3}, o findall acha 123 -> nao da overlap nos matches 
+
+
+-------- qualifier syntax: what characters to match 
+regex sao divididas em duas partes 
+os QUALIFIERS que ditam quais characters eu vou tentar dar match seguido dos QUANTIFIERS que indica quantos characters eu vou tentar dar match 
+
+por ex: r'\d{3} - ... aqui r'\d' e '-' sao qualifiers enquanto '{3}' é um quantifier 
+agora examinaremos a syntax dos qualifiers 
+
+---------- using character classes and negative characters classes 
+posso definir um CHARACTER CLASS, que sao chacarters definidos em [] que quero dar match 
+por ex: [aeiouAEIOU] vai dar match com qualquer vogal, upper ou lower case, equivalente de a|e|i ... etc 
+re.compile(r'[aeiouAEIOU]) 
+findall('robocop eats baby food.')
+['o', 'o', 'o', 'e' ... ]
+
+posso tambem usar ranges de numeros ou letras usando híphen 
+[a-zA-Z0-9] da match com todas as letras de a a z, A a Z e 0 a 9 
+dentro dos brackets, nao preciso colocar as barras para especificar alguns characters especiais 
+
+ao colocar um (^) no começo dos brackets, eu crio um NEGATIVE CHARACTER CLASS, que vai dar match com qualquer chacarter que NAO ESTA na character class 
+r'[^aeiouAEIOU] 
+envolve espaços, newlines, pontuação e numeros 
+
+------ using shorthand character classes 
+
+\d para qualquer digito numerico - 0 a 9 
+\D qlqr character que nao é um digito numerico de 0 a 9 
+\w any letter, numeric digit or the underscore character (word) 
+\W qualquer digito que nao é uma letra, numero ou underscore 
+\s qualquer espaço, tab ou newline (space) 
+\S nao space, tab or newline 
+
+re.compile(r'\d+\s\w+')
+\d+ -> um ou mais numeros 
+seguido de 1 espaço
+seguido de uma ou mais word 
+
+------- matching everythin with the dot character 
+re.compile(r'.at')
+word.findall('the cat in the hat sat on the flat mat.')
+cat hat sat lat mat 
+pega só 1 char antes 
+\.at pega o periodo inteiro 
+
+-------- being careful what you match for 
+melhor e pior coisa é que o regex da match exatamente com o que eu pedir 
+case sensitive 
+'' "" precisam ser tratados diferentemente 
+lembrar que regex ate entao nao pega acento, para antes 
+
+-------- quantifier syntex: how many qualifiers to match 
+
+----- macthiing an optional pattern 
+o ? diz ao regex que um char é opcional, por ex:
+(r'42!')
+da match com 42! e com 42 
+para fazer um grupo inteiro ser opcional, só separar em parentesis e colocar o ? depois
+(...)? 
+
+----- matching zero or more qualifiers 
+o * diz "match zero or more" 
+Eggs(and spam)* 
+da match com Eggs e quantos (and spam) tiver depois dele 
+o + diz "match one or more" 
+
+---- mathcing a specific number of qualifiers 
+(ha){3}
+da match com hahaha 
+posso especificar um range tbm 
+(ha){3, 5} 
+hahaha hahahaha hahahahaha 
+{3,} 3 ou mais ha 
+{,5} de 0 a 5 
+
+----- greedy and non-greedy matching 
+greedy by default 
+non-greedy/ lazy 
+pra ser lazy, só colocar um ? depois do quantifier 
+? -> {0,1}
+* -> {0,}
++ -> {1,} 
+
+------ matching everything 
+.* -> anything 
+(.*) -> local onde tudo da match ( separado ou group ) 
+.*? non greedy 
+
+
+------ matching newline characters 
+.* tudo menos newline 
+passar o re.DOTALL no segundo argumento do re.compile() faz o dot achar tudo até o newline 
+newline -> \n 
+re.comple('.*', re.DOTALL ) 
+
+------ mathcing at the start and end of a string 
+^ -> match tudo o que vem dps (antes do espaço)
+& -> tudo que vem antes 
+\d$ -> tudo o que termina com numero 
+
+r'^\d&' -> tudo o que começa e termina com numero ao mesmo tempo 
+"carrots cost dollars" 
+^ antes do & 
+
+posso usar um word boundary 
+por exemplo: r'\bcat.*?\b' da match com tudo que começa com cat e continua a palavra 
+cat, catapult, catalog, catabombs 
+
+\B \B da match com tudo que NAO ESTA no boundary 
+
+-------- case-insensitive matching 
+para tornar a busca do regex case insensitive, só colocar um argumento a mais no compile
+
+re.compile(r'robocop', re.I) 
+re.I ou re.IGNORECASE 
+
+
+--------- substituing strings 
+regex nao só acha padrões, pode substituir strings tambem 
+sub() method 
+2 argumentos - o primeiro é a string que eu vou dar replace nos matches 
+o segundo é a string do regex (a que o regex acha)
+
+re.compile(r'Agent \w+')
+.sub('CENSORED', 'Agent Alice contacted Agent Bob')
+CENSORED contacted CENSORED 
+
+se quiser substituir só 1 letra 
+compile(r'Agent (\w(\w*')
+.sub('\1****'m 'string')
+A**** contacted B**** 
+
+o \1 diz que vai dar replace em tudo que estiver no grupo 1 (\w) no compile 
+
+------ managing complex regexes with verbose mode
+re.compile(' regex complicado', re.VERBOSE) 
+re.VERBOSE ignora whitespaces e comentarios dentro do compile ( bom para se organizar no regex) 
+r''' -> deixa eu spread o regex para varias linhas 
+
+--------- combining ignorecase, dotall e verbose 
+
+re.IGNORECASE | re.DOTALL | re.VERBOSE 
+
+
+----- Humre: a module for human-readable regexes 
+r'\d{3}-\d{3}-\d{4}'
+vira 
+exactly(3, DIGIT) + '-' + exactly(3, DIGIT) + '-' + exactly(4, DIGIT)
+transforma a syntaxe complicada em strings bem intuitivas 
+humre import * 
+humre.parse(r'\d{3} ... )
+retorna como ficaria em humre 
+
+
+------
+rev code 
+
+texto bruto em informação organizada
+lidar com arquivos, o padrao hoje é o 'with' 
+
+open(caminho, 'r') -> 'r' significa read, se eu quisesse escrever, seria 'w' 
+with é um gerente de contexto, ele fecha o arquivo automaticamente assim que o bloco de codigo termina 
+evita que o arquivo fique preso na memoria do computador 
+readlines() -> transforma o aqruivo em uma lista de strings
+--> cada item da lista é uma linha do log, facilita o for 
+
+try/except é uma rede de segurança, se o servidor.log nao existir, o python imprime uma mensagem
+e retorna uma lista vazia 
+
+r'' no regex -> diz "raw string", fala para o python nao interpretar as barras invertidas 
+
+biblioteca collections.Counter 
+-> Counter é um dicionario turbinado que faz contagens automaticamente 
+contagem = counter(erros) 
+print(contagem) 
+
+metodo .most_commom(n) -> recurso para analistas de dados, ordena o dicionario do maior para o 
+menor e me entrega os n itens que mais apareceram, mostra qual erro pode estar "derrubando o servidor" 
+
+
+------------- 
+estudo argparse 
+
+command line parsing module 
+a biblio padrao ja vem com outras duas juntas:
+- optparse e getopt 
+
+optional arguments 
+ls -l -> -l é o optarg 
+
+import argparse 
+parser = argparse.ArgumentParser() 
+parser.parse_args() 
+
+parser = argparse.Argumentparser() 
+parser.ad_argument("echo")
+args = parser.parse_args() 
+print(args.echo) 
+
+parser.ad_argument("echo", help="echo the string you use here")
+
+python prog.py -h 
+positional arguments:
+    echo    echo the string you use here 
+
+ad_argument("square", help="display a square of given number, type=int") 
+print(args.square**2)
+
+---> introducing optional arguments 
+
+add_argument("--verbosity", help="increase output verbosity", action="store_true")
+args = parser.parse_args() 
+if args.verbosity:
+    print("verbosity turned on") 
+
+
+short options 
+
+add_argument("-v", "--verbose", ... )
+
+combining positional and optional arguments 
+2 add_arguments
+-> especificação separada em cada um
+-> variavel args para cada um 
+
+type=int, choices=[0,1,2], ... 
+
+action="count"
+default = 0 
+end="" 
+
+.add_mutually_exclusive_group() 
+
+argparse.ArgumentParser(description="calculate X to the power of Y") 
+
+metavar='<value>'
+
+-------------
+revisão pathlib
+
+from pathlib import path 
+
+pasta = Path('logs/')
+
+arquivo = pasta.glob('*.log')
+for arquivo in arquivos:
+    print(arquivo) 
+
+conteudo = arquivo.read_text() 
+
+
