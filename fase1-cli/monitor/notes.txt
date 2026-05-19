@@ -1,0 +1,119 @@
+módulo principal: psutil
+import psutil 
+
+estudar pela documentação de terceiros 
+baixei psutil dentro do venv 
+python3 -m venv venv 
+source caminho/venv/activate 
+
+funções principais:
+import psutil
+
+psutil.cpu_percent(interval=1)
+psutil.virtual_memory()
+psutil.disk_usage('/')
+
+documentação em psutil.readthedocs.io
+ler e estudar os modulos de: CPU, Memory e Disk
+
+psutil - process and system utilities 
+
+psutil funciona para analise de cpu, memoria, disco, rede e sensores (hardware) 
+
+-------- system related functions 
+
+CPU ---------
+
+psutil.cput_times (percpu=False)
+-> retorna: system CPU times as a named tuple 
+cada atributo representa os segundos que a CPU precisou no given mode 
+the attributes availability varies depending on the plaftorm
+- user - time spent by notmal processes executing in user mode + guest time in linux 
+- system - time spent by processes executing in kernel mode 
+- idle - time spent doing nothing 
+
+platform-specific fields 
+nice, iowait, irq, softirq, steal, guest, guest_nice, interrupt, dpc 
+
+quando percpu = True -> retorna uma lista de tuplas pra cada CPU no systema 
+
+
+psutil.cpu_percent(interval=None,percpu=False)
+retorna um numero float representando the current system-wide CPU utilization as a percentage 
+quando o intervalo é > 0.0 
+
+psutil.cpu_times_percent(interval=None,percpu=False)
+junta o times com o percent 
+
+psutil.cpu_count(logical=True) 
+retorna o numer o de logical CPUs in the system 
+logical CPU -> numero de cores fisicos * numero de threads que podem rodar em cada core 
+
+psutil.cpu_stats() 
+retorna varias estatisticas da CPU em tuplas 
+ctx_switches, interrupts, soft_interrupts, syscalls 
+
+psutil.cpu_freq(percpu=False)
+retorna a frequencia da CPU em tuplas
+current, min and max frequencies in Mhz 
+
+psutil.get_loadavg()
+retorna a media do load do sistema nos ultimos 1, 5 e 15 minutos em tuplas 
+o load representa os processos in runnable state 
+usando a CPU ou esperando pra usar a CPU 
+
+
+MEMORIA --------
+
+psutil.virtual_memory() 
+retorna estatisticas sobre a utilização de memoria pelo sistema em tuplas 
+total, available, percent
+used, free, active, inactive, buffers (cache in file systems), cached, shared, slab, wired 
+
+psutil.swap_memory() 
+retorna a memoria swap (estatisticas em tuplas) 
+total, used, free, percent, sin, sout 
+
+
+DISKS -----------
+
+sputil.disk_partitions(all=False) 
+retorna todos os mounted disk partitions em uma lista de tuplas nomeadas
+device, mount point e filesystem type
+similar ao comando df no linux 
+se os parametros forem False, tenta distinguir e retornar os physical devices only 
+
+psutil.disk_usage(path)
+retorna disk usage statistics sobre a partição que coloquei no path 
+total, used and free 
+('/') pega tudo 
+
+psutil.disk_io_counters(perdisk=False, nowrap=True) 
+I/O statistics in named tuples 
+read, write - bytes 
+read/write time etc 
+
+'''
+monitor de uso de sistema (versão simples sem rich)
+vou ter funções separadas para cada informação? (CPU, memory and disk)
+na main eu faço o loop principal:
+-> limpa a tela
+-> pega dados
+-> atualiza na tela
+-> espera X segundos
+-> reseta o loop
+
+usar biblio psutil para pegar as informações
+usar biblio tempo para cronometrar o loop
+usar biblio os para limpar o terminal
+
+'''
+estrutura basica feita, mostra o raw de cada função do psutil 
+agora:
+- formatação das informações
+>> conhecimento do que o raw me da, matematica 
+- estetica dos prints com barras de porcentagem 
+>> saber fazer as barrinhas com print
+- corrigir para nao deixar a tela "vazia" depois de um clear 
+>> conhecimento da biblio os? 
+'''
